@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mkabischev/kapusta.svg)](https://travis-ci.org/mkabischev/kapusta)
 
-It`s middleware approach for using http.Client. You can wrap your client with different functionality: 
+It`s middleware approach for using **http.Client**,  inspired by [Embrace the Interface talk](https://github.com/gophercon/2015-talks/tree/master/Tom%C3%A1s%20Senart%20-%20Embrace%20the%20Interface). You can wrap your client with different functionality: 
 
  - log every request
  - append auth headers

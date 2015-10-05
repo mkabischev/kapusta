@@ -1,7 +1,6 @@
 package kapusta
 
 import (
-	_ "goblin/test"
 	"net/http"
 	"testing"
 

@@ -2,7 +2,6 @@ package mock
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -20,7 +19,7 @@ func NewClient() *Client {
 }
 
 // Do comparing request with all constrains and returns first matching
-func (c *Client) Do(ctx context.Context, r *http.Request) (*http.Response, error) {
+func (c *Client) Do(r *http.Request) (*http.Response, error) {
 	requestBody := readerToString(r.Body)
 	for _, promise := range c.promises {
 		// Request copy is required because body can be read only once

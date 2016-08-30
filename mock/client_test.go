@@ -1,101 +1,97 @@
 package mock
 
 import (
-	"context"
 	"strings"
+	"testing"
 
-	. "gopkg.in/check.v1"
+	"github.com/stretchr/testify/assert"
 )
 
-type TestClientSuite struct {
-	TestSuite
-}
-
-var _ = Suite(&TestClientSuite{})
-
-func (s *TestClientSuite) TestDo(c *C) {
+func TestDo(t *testing.T) {
 	client := NewClient()
 	client.Get("/path").WillReturn(200, "response")
 
-	res, err := client.Do(context.Background(), s.newRequest("GET", "/path", nil))
+	res, err := client.Do(newRequest("GET", "/path", nil))
 
-	c.Assert(err, IsNil)
-	c.Assert(res.StatusCode, Equals, 200)
-	c.Assert(readerToString(res.Body), Equals, "response")
+	assert.Nil(t, err)
+	assert.Equal(t, res.StatusCode, 200)
+	assert.Equal(t, readerToString(res.Body), "response")
 }
 
-func (s *TestClientSuite) TestManyConstraintsOnSamePath(c *C) {
+func TestManyConstraintsOnSamePath(t *testing.T) {
 	client := NewClient()
 	client.Get("/path").WillReturn(200, "response")
 	client.Get("/path").WillReturn(200, "response_2")
 
-	res, err := client.Do(context.Background(), s.newRequest("GET", "/path", nil))
+	res, err := client.Do(newRequest("GET", "/path", nil))
 
-	c.Assert(err, IsNil)
-	c.Assert(res.StatusCode, Equals, 200)
-	c.Assert(readerToString(res.Body), Equals, "response")
+	assert.Nil(t, err)
+	assert.Equal(t, res.StatusCode, 200)
+	assert.Equal(t, readerToString(res.Body), "response")
 }
 
-func (s *TestClientSuite) TestManyMethodsOnSamePath(c *C) {
+func TestManyMethodsOnSamePath(t *testing.T) {
 	client := NewClient()
 	client.Get("/path").WillReturn(200, "response")
 	client.Post("/path").WillReturn(200, "response_2")
 
-	res, err := client.Do(context.Background(), s.newRequest("POST", "/path", nil))
+	res, err := client.Do(newRequest("POST", "/path", nil))
 
-	c.Assert(err, IsNil)
-	c.Assert(res.StatusCode, Equals, 200)
-	c.Assert(readerToString(res.Body), Equals, "response_2")
+	assert.Nil(t, err)
+	assert.Equal(t, res.StatusCode, 200)
+	assert.Equal(t, readerToString(res.Body), "response_2")
 }
 
-func (s *TestClientSuite) TestManyBodyOnSamePath(c *C) {
+func TestManyBodyOnSamePath(t *testing.T) {
 	client := NewClient()
 	client.Post("/path").WithBody("request_1").WillReturn(200, "response")
 	client.Post("/path").WithBody("request_2").WillReturn(200, "response_2")
 
-	res, err := client.Do(context.Background(), s.newRequest("POST", "/path", strings.NewReader("request_2")))
+	res, err := client.Do(newRequest("POST", "/path", strings.NewReader("request_2")))
 
-	c.Assert(err, IsNil)
-	c.Assert(res.StatusCode, Equals, 200)
-	c.Assert(readerToString(res.Body), Equals, "response_2")
+	assert.Nil(t, err)
+	assert.Equal(t, res.StatusCode, 200)
+	assert.Equal(t, readerToString(res.Body), "response_2")
 }
 
-func (s *TestClientSuite) TestNoSuitableRequestWrongPath(c *C) {
+func TestNoSuitableRequestWrongPath(t *testing.T) {
 	client := NewClient()
 	client.Get("/").WillReturn(200, "response")
 
-	res, err := client.Do(context.Background(), s.newRequest("GET", "/path", nil))
-	c.Assert(res, IsNil)
-	c.Assert(err, ErrorMatches, "No suitable request found")
+	res, err := client.Do(newRequest("GET", "/path", nil))
+
+	assert.Nil(t, res)
+	assert.Error(t, err, "No suitable request found")
 }
 
-func (s *TestClientSuite) TestNoSuitableRequestWrongBody(c *C) {
+func TestNoSuitableRequestWrongBody(t *testing.T) {
 	client := NewClient()
 	client.Post("/").WithBody("request").WillReturn(200, "response")
 
-	res, err := client.Do(context.Background(), s.newRequest("POST", "/", strings.NewReader("request_")))
-	c.Assert(res, IsNil)
-	c.Assert(err, ErrorMatches, "No suitable request found")
+	res, err := client.Do(newRequest("POST", "/", strings.NewReader("request_")))
+
+	assert.Nil(t, res)
+	assert.Error(t, err, "No suitable request found")
 }
 
-func (s *TestClientSuite) TestGetWithQueryParams(c *C) {
+func TestGetWithQueryParams(t *testing.T) {
 	client := NewClient()
 	client.Get("/path?param=value").WillReturn(200, "response")
 
-	res, err := client.Do(context.Background(), s.newRequest("GET", "/path?param=value", nil))
+	res, err := client.Do(newRequest("GET", "/path?param=value", nil))
 
-	c.Assert(err, IsNil)
-	c.Assert(res.StatusCode, Equals, 200)
-	c.Assert(readerToString(res.Body), Equals, "response")
+	assert.Nil(t, err)
+	assert.Equal(t, res.StatusCode, 200)
+	assert.Equal(t, readerToString(res.Body), "response")
 }
 
-func (s *TestClientSuite) TestRequest(c *C) {
+func TestRequest(t *testing.T) {
 	client := NewClient()
 	client.Request().WillReturn(200, "response")
 
-	res, err := client.Do(context.Background(), s.newRequest("GET", "/path", nil))
+	res, err := client.Do(newRequest("GET", "/path", nil))
 
-	c.Assert(err, IsNil)
-	c.Assert(res.StatusCode, Equals, 200)
-	c.Assert(readerToString(res.Body), Equals, "response")
+	assert.Nil(t, err)
+	assert.Equal(t, res.StatusCode, 200)
+	assert.Equal(t, readerToString(res.Body), "response")
 }

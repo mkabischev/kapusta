@@ -18,14 +18,16 @@ It`s middleware approach for using http.Client. You can wrap your client with di
 Internal http package doesn`t have any interface for http clients, so Kapusta provides very simple client interface:
 ```go
 type Client interface {
-	Do(ctx context.Context, *http.Request) (*http.Response, error)
+	Do( *http.Request) (*http.Response, error)
 }
 ```
+
+`http.Client` supports it out of box!
 
 ## Middlewares:
 
 ```go
-type MiddlewareFunc func(IClient) IClient
+type MiddlewareFunc func(Client) Client
 ```
 
 Kapusta provides some helpful middlewares for you:
@@ -38,10 +40,8 @@ Kapusta provides some helpful middlewares for you:
 ## Usage
 
 ```go
-client := http.DefaultClient
-
 decoratedClient := kapusta.Chain(
-    client,
+    http.DefaultClient,
     middleware.HeaderMiddleware("X-Auth", "123"),
     middleware.RecoverMiddleware(), // better to place it last to recover panics from middlewares too
 )
@@ -72,18 +72,35 @@ func AwesomeStuffDecorator(c kapusta.Client) kapusta.Client {
 
 Or you can create just a function with type:
 ```go 
-type ClientFunc func(ctx context.Context, *http.Request) (*http.Response, error)
+type ClientFunc func(*http.Request) (*http.Response, error)
 ```
 
 So the same example will be looks like:
 ```go
 func AwesomeStuffDecorator(c kapusta.Client) kapusta.Client {
-	return kapusta.ClientFunc(func(ctx context.Context, r *http.Request) (*http.Response, error) {
+	return kapusta.ClientFunc(func(r *http.Request) (*http.Response, error) {
 		// some stuff before call
-        res, err := c.client.Do(ctx, r)
+        res, err := c.client.Do(r)
         // some stuff after call
         
         return res, err
 	})
 }
+```
+
+## Mock 
+
+Also kapusta provides mock package for testing purposes. 
+
+
+
+```go
+client := mock.NewClient() // implements kapusta.Client
+	
+	client.
+		Get("/path").
+		WithBody(`{"foo": "bar"}`).
+		WillReturn(200, `{"bar": "foo"}`)
+		
+// now you can inject client to your code.
 ```

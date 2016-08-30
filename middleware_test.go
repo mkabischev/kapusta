@@ -57,7 +57,12 @@ func TestBaseURLMiddleware(t *testing.T) {
 	res, _ := send(r, BaseURLMiddleware("http://example.com"))
 
 	assert.Equal(t, res.Request.URL.String(), "http://example.com/")
+}
 
+func TestBaseURLMiddlewareFail(t *testing.T) {
+	assert.Panics(t, func() {
+		BaseURLMiddleware("://example.com")
+	})
 }
 
 func TestPanicMiddleware(t *testing.T) {

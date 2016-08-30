@@ -4,8 +4,12 @@ go:
   - 1.7
   - tip
 
+before_install:
+  - go get github.com/mattn/goveralls
+  - go get golang.org/x/tools/cmd/cover
+
 install:
   - go get github.com/stretchr/testify/assert
 
 script:
-  - cd $TRAVIS_BUILD_DIR && go test -v ./...
+  - $HOME/gopath/bin/goveralls -service=travis-ci

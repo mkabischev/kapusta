@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/mkabischev/kapusta.svg?branch=master)](https://travis-ci.org/mkabischev/kapusta)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mkabischev/kapusta)](https://goreportcard.com/report/github.com/mkabischev/kapusta)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/hyperium/hyper/master/LICENSE)
+
 
 It`s middleware approach for using http.Client. You can wrap your client with different functionality: 
 

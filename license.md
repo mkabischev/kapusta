@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2016 Mike Kabischev
+Copyright (c) 2015 Mike Kabischev
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

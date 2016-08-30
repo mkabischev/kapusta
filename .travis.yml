@@ -5,6 +5,7 @@ go:
 
 install:
   - go get gopkg.in/check.v1
+  - go get github.com/go-st/logger
 
 script:
-  - cd $TRAVIS_BUILD_DIR && go test -gocheck.v
+  - cd $TRAVIS_BUILD_DIR && go test ./... -gocheck.v

@@ -2,6 +2,7 @@ package mock
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -19,7 +20,7 @@ func NewClient() *Client {
 }
 
 // Do comparing request with all constrains and returns first matching
-func (c *Client) Do(r *http.Request) (*http.Response, error) {
+func (c *Client) Do(ctx context.Context, r *http.Request) (*http.Response, error) {
 	requestBody := readerToString(r.Body)
 	for _, promise := range c.promises {
 		// Request copy is required because body can be read only once
@@ -33,14 +34,21 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 	return nil, fmt.Errorf("No suitable request found")
 }
 
-// Get helper method for using RuleBuilder
+// Get is a helper method for using PromiseBuilder
 func (c *Client) Get(path string) *PromiseBuilder {
 	return NewPromiseBuilder(c).Get(path)
 }
 
-// Post helpep method for using RuleBuilder
+// Post is a helper method for using PromiseBuilder
 func (c *Client) Post(path string) *PromiseBuilder {
 	return NewPromiseBuilder(c).Post(path)
+}
+
+// Request is a helper method that returns empty PromiseBuilder
+// It should be used if you just want to mock response
+// and don't need to check request method, path and/or body
+func (c *Client) Request() *PromiseBuilder {
+	return NewPromiseBuilder(c)
 }
 
 func readerToString(r io.Reader) string {

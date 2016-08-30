@@ -1,13 +1,10 @@
 package mock
 
 import (
-	_ "goblin/test"
-	"testing"
-
 	"bytes"
-	"net/http"
-
 	"io"
+	"net/http"
+	"testing"
 
 	. "gopkg.in/check.v1"
 )

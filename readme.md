@@ -1,13 +1,13 @@
 # Kapusta
 
-[![Build Status](https://travis-ci.org/mkabischev/kapusta.svg)](https://travis-ci.org/mkabischev/kapusta)
+[![Build Status](https://travis-ci.org/go-st/kapusta.svg?branch=master)](https://travis-ci.org/go-st/kapusta)
 
-It`s middleware approach for using **http.Client**,  inspired by [Embrace the Interface talk](https://github.com/gophercon/2015-talks/tree/master/Tom%C3%A1s%20Senart%20-%20Embrace%20the%20Interface). You can wrap your client with different functionality: 
+It`s middleware approach for using http.Client. You can wrap your client with different functionality: 
 
  - log every request
  - append auth headers
  - use http cache
- - use etcd for service discovery
+ - use etcd/consul for service discovery
  - and whatever you want!
  
 **Just like a cabbage!**
@@ -19,40 +19,38 @@ It`s middleware approach for using **http.Client**,  inspired by [Embrace the In
 Internal http package doesn`t have any interface for http clients, so Kapusta provides very simple client interface:
 ```go
 type Client interface {
-	Do(*http.Request) (*http.Response, error)
+	Do(ctx context.Context, *http.Request) (*http.Response, error)
 }
 ```
-`http.Client` supports it out of box.
 
-## Decorators
+## Middlewares:
 
-Decorator is like a middleware:
 ```go
-type DecoratorFunc func(Client) Client
+type MiddlewareFunc func(IClient) IClient
 ```
 
-Kapusta provides some helpful decorators for you:
+Kapusta provides some helpful middlewares for you:
 
-- ```HeadersDecorator(values map[string]string)``` Adds headers to requests
-- ```HeaderDecorator(name, value string)``` Like headers, but add only one header. 
-- ```RecoverDecorator()``` Converts all panics into errors
-- ```BaseURLDecorator(baseURL string)``` Replaces scheme and host to baseURL value.
+- ```HeadersMiddleware(values map[string]string)``` Adds headers to requests
+- ```HeaderMiddleware(name, value string)``` Like headers, but add only one header. 
+- ```RecoverMiddleware()``` Converts all panics into errors
+- ```BaseURLMiddleware(baseURL string)``` Replaces scheme and host to baseURL value.
 
 ## Usage
 
 ```go
 client := http.DefaultClient
 
-decoratedClient := kapusta.Decorate(
+decoratedClient := kapusta.Chain(
     client,
-    kapusta.HeaderDecorator("X-Auth", "123"),
-    kapusta.RecoverDecorator(), // better to place it last to recover panics from decorators too
+    middleware.HeaderMiddleware("X-Auth", "123"),
+    middleware.RecoverMiddleware(), // better to place it last to recover panics from middlewares too
 )
 ```
 
-## Create your own decorator
+## Create your own middleware
 
-There are two ways of creating new decorators.
+There are two ways of creating new middleware.
 
 You can create some new struct:
 ```go
@@ -60,7 +58,7 @@ struct AwesomeStuffClient {
     client kapusta.Client
 }
 
-func(c *AwesomeStuffClient) Do(r *http.Request) (*http.Response, error) {
+func(c *AwesomeStuffClient) Do(ctx context.Context, r *http.Request) (*http.Response, error) {
     // some stuff before call
     res, err := c.client.Do(r)
     // some stuff after call
@@ -68,7 +66,7 @@ func(c *AwesomeStuffClient) Do(r *http.Request) (*http.Response, error) {
     return res, err
 }
 
-func AwesomeStuffDecorator(c kapusta.Client) kapusta.Client {
+func AwesomeStuffDecorator(c kapusta.IClient) kapusta.IClient {
     return &AwesomeStuffClient{client: c}
 }
 ```
@@ -80,7 +78,7 @@ type ClientFunc func(*http.Request) (*http.Response, error)
 
 So the same example will be looks like:
 ```go
-func AwesomeStuffDecorator(c kapusta.Client) kapusta.Client {
+func AwesomeStuffDecorator(c kapusta.IClient) kapusta.IClient {
 	return kapusta.ClientFunc(func(r *http.Request) (*http.Response, error) {
 		// some stuff before call
         res, err := c.client.Do(r)

@@ -1,6 +1,7 @@
 # Kapusta
 
 [![Build Status](https://travis-ci.org/mkabischev/kapusta.svg?branch=master)](https://travis-ci.org/mkabischev/kapusta)
+[![Coverage Status](https://coveralls.io/repos/github/mkabischev/kapusta/badge.svg)](https://coveralls.io/github/mkabischev/kapusta)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mkabischev/kapusta)](https://goreportcard.com/report/github.com/mkabischev/kapusta)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/hyperium/hyper/master/LICENSE)
 

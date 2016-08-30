@@ -52,6 +52,14 @@ func TestHeadersMiddleware(t *testing.T) {
 	assert.Equal(t, res.Request.Header.Get("X-Bar"), "456")
 }
 
+func TestBaseURLMiddleware(t *testing.T) {
+	r, _ := http.NewRequest("GET", "/", nil)
+	res, _ := send(r, BaseURLMiddleware("http://example.com"))
+
+	assert.Equal(t, res.Request.URL.String(), "http://example.com/")
+
+}
+
 func TestPanicMiddleware(t *testing.T) {
 	panicTriggerDecorator := func(c Client) Client {
 		return ClientFunc(func(r *http.Request) (res *http.Response, err error) {

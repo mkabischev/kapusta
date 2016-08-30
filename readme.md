@@ -60,33 +60,31 @@ struct AwesomeStuffClient {
 
 func(c *AwesomeStuffClient) Do(ctx context.Context, r *http.Request) (*http.Response, error) {
     // some stuff before call
-    res, err := c.client.Do(r)
+    res, err := c.client.Do(ctx, r)
     // some stuff after call
     
     return res, err
 }
 
-func AwesomeStuffDecorator(c kapusta.IClient) kapusta.IClient {
+func AwesomeStuffDecorator(c kapusta.Client) kapusta.Client {
     return &AwesomeStuffClient{client: c}
 }
 ```
 
 Or you can create just a function with type:
 ```go 
-type ClientFunc func(*http.Request) (*http.Response, error)
+type ClientFunc func(ctx context.Context, *http.Request) (*http.Response, error)
 ```
 
 So the same example will be looks like:
 ```go
-func AwesomeStuffDecorator(c kapusta.IClient) kapusta.IClient {
-	return kapusta.ClientFunc(func(r *http.Request) (*http.Response, error) {
+func AwesomeStuffDecorator(c kapusta.Client) kapusta.Client {
+	return kapusta.ClientFunc(func(ctx context.Context, r *http.Request) (*http.Response, error) {
 		// some stuff before call
-        res, err := c.client.Do(r)
+        res, err := c.client.Do(ctx, r)
         // some stuff after call
         
         return res, err
 	})
 }
 ```
-
-Sometimes it`s required to pass some params in decorator, for details see Headers decorator.

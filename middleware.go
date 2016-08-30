@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-
 )
 
 // HeaderMiddleware returns a DecoratorFunc that adds the given HTTP header to every request done by a Client.

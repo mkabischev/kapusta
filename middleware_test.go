@@ -107,7 +107,7 @@ func TestPanicMiddleware(t *testing.T) {
 
 func TestBackoffMiddleware(t *testing.T) {
 	c := newFailableClient(5, &http.Response{StatusCode: 500}, nil)
-	c = Chain(c, BackoffMiddleware(10, time.Second, RequestStatusIn(200, 400)))
+	c = Chain(c, BackoffMiddleware(10, time.Millisecond, RequestStatusIn(200, 400)))
 
 	r, _ := http.NewRequest("GET", "/", nil)
 	_, err := c.Do(r)

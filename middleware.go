@@ -82,14 +82,14 @@ func BackoffMiddleware(retries int, delay time.Duration, goodRequestFn GoodReque
 	return func(c Client) Client {
 		nextDelay := time.Duration(0)
 		return ClientFunc(func(r *http.Request) (*http.Response, error) {
-			for i := 0; i < retries; i++ {
+			for i := 1; i <= retries; i++ {
 				res, err := c.Do(r)
 				if goodRequestFn(res, err) {
 					return res, err
 				}
 
-				time.Sleep(nextDelay)
 				nextDelay += delay * time.Duration(i)
+				time.Sleep(nextDelay)
 			}
 
 			return nil, fmt.Errorf("request failed after %v retries.", retries)

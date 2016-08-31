@@ -3,6 +3,7 @@ package kapusta
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -11,6 +12,31 @@ type dummy struct{}
 
 func (d dummy) Do(r *http.Request) (*http.Response, error) {
 	return &http.Response{Request: r}, nil
+}
+
+type failableClient struct {
+	fails          int // number of first requests which will fail
+	calls          int // number of requests processed
+	responseOnFail *http.Response
+	errorOnFail    error
+}
+
+func newFailableClient(fails int, r *http.Response, err error) Client {
+	return &failableClient{
+		fails:          fails,
+		responseOnFail: r,
+		errorOnFail:    err,
+	}
+}
+
+func (c *failableClient) Do(r *http.Request) (*http.Response, error) {
+	c.calls++
+
+	if c.calls < c.fails {
+		return c.responseOnFail, c.errorOnFail
+	}
+
+	return &http.Response{Request: r, StatusCode: 200}, nil
 }
 
 type callOrder []string
@@ -77,4 +103,15 @@ func TestPanicMiddleware(t *testing.T) {
 
 	assert.Nil(t, res)
 	assert.Error(t, err, "oops")
+}
+
+func TestBackoffMiddleware(t *testing.T) {
+	c := newFailableClient(5, &http.Response{StatusCode: 500}, nil)
+	c = Chain(c, BackoffMiddleware(10, time.Second, RequestStatusIn(200, 400)))
+
+	r, _ := http.NewRequest("GET", "/", nil)
+	_, err := c.Do(r)
+
+	assert.Nil(t, err)
+
 }
